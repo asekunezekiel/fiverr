@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigForge — Freelance Setup Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0D12;--surface:#13161E;--s2:#181C27;--s3:#1E2332;
+  --border:#222636;--b2:#2A3048;
+  --accent:#F97316;--adim:#7C3A10;--asoft:#150F06;
+  --green:#22C55E;--blue:#3B82F6;
+  --text:#EEF0F6;--t2:#8892A4;--t3:#3D4560;
+  --r:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:inherit;font-size:13px;outline:none}
+textarea{resize:vertical}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:-.4px}
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
+.logo-sub{color:var(--t3);font-weight:400;font-size:12px;margin-left:2px}
+.top-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--asoft);border:1px solid var(--adim);color:var(--accent)}
+
+.shell{display:flex;height:calc(100vh - 52px)}
+.sidebar{width:200px;min-width:200px;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-label{padding:14px 16px 6px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1.3px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;color:var(--t2);font-size:12.5px;font-weight:500;border-left:2px solid transparent;transition:all .12s;user-select:none}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.025)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--asoft);font-weight:600}
+.nav-icon{font-size:12px;width:14px;text-align:center;flex-shrink:0;transition:color .12s}
+.nav-item.done .nav-icon{color:var(--green)}
+.nav-div{height:1px;background:var(--border);margin:8px 16px}
+
+.workspace{flex:1;display:flex;overflow:hidden}
+.pane-l{width:380px;min-width:340px;border-right:1px solid var(--border);overflow-y:auto;padding:24px 22px;background:var(--surface);flex-shrink:0}
+.pane-r{flex:1;overflow-y:auto;padding:24px 22px;background:var(--bg)}
+
+.eyebrow{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px}
+.sec-title{font-size:19px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px;line-height:1.2}
+.sec-sub{color:var(--t2);font-size:12px;margin-bottom:20px;line-height:1.5}
+
+/* CORE INPUT — the one thing user types */
+.core-input-wrap{background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:16px;margin-bottom:20px}
+.core-label{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.core-label::before{content:'';width:3px;height:10px;background:var(--accent);border-radius:2px;flex-shrink:0}
+.core-input{width:100%;background:var(--s3);border:1px solid var(--b2);border-radius:8px;color:var(--text);padding:11px 13px;font-size:14px;font-weight:500;transition:border .12s}
+.core-input:focus{border-color:var(--accent)}
+.core-input::placeholder{color:var(--t3);font-weight:400}
+.core-textarea{width:100%;background:var(--s3);border:1px solid var(--b2);border-radius:8px;color:var(--text);padding:11px 13px;font-size:13px;min-height:110px;line-height:1.6;transition:border .12s}
+.core-textarea:focus{border-color:var(--accent)}
+.core-textarea::placeholder{color:var(--t3)}
+
+/* QUICK OPTIONS — pill selectors */
+.opts-label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;margin-top:16px}
+.opts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+.opt{padding:5px 11px;border-radius:6px;font-size:12px;font-weight:500;background:var(--s3);border:1px solid var(--b2);color:var(--t2);cursor:pointer;transition:all .12s;user-select:none}
+.opt:hover{border-color:var(--b2);color:var(--text)}
+.opt.sel{background:var(--asoft);border-color:var(--adim);color:var(--accent);font-weight:600}
+.opt.multi.sel{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.3);color:#93C5FD}
+
+/* EXTRA FIELDS — shown conditionally / collapsed by default */
+.extra-toggle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;margin-top:14px;margin-bottom:0;user-select:none;transition:color .12s}
+.extra-toggle:hover{color:var(--t2)}
+.extra-toggle::before{content:'▶';font-size:9px;transition:transform .2s}
+.extra-toggle.open::before{transform:rotate(90deg)}
+.extra-fields{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.extra-fields.open{display:block}
+.field{margin-bottom:12px}
+.field-row{display:grid;gap:8px}
+.cols2{grid-template-columns:1fr 1fr}
+.cols3{grid-template-columns:1fr 1fr 1fr}
+.label{font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:.4px}
+.lnote{font-size:10px;font-weight:400;color:var(--t3);text-transform:none;letter-spacing:0}
+.inp,.sel,.ta{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--text);padding:8px 11px;font-size:12.5px;transition:border .12s}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--accent)}
+.inp::placeholder,.ta::placeholder{color:var(--t3)}
+.ta{min-height:64px;line-height:1.5;resize:vertical}
+.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%233D4560' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+/* KEYWORD TOOL */
+.kw-box{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:13px;margin-bottom:16px}
+.kw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kw-title{font-size:11px;font-weight:700;color:var(--text)}
+.kw-pills{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.kw-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;user-select:none}
+.kw-h{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#22C55E}
+.kw-m{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);color:#93C5FD}
+.kw-l{background:var(--s3);border:1px solid var(--b2);color:var(--t2)}
+.kw-chip.ksel{outline:2px solid var(--accent);outline-offset:1px}
+.kw-dot{width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0}
+.kw-legend{font-size:10px;color:var(--t3);margin-bottom:5px}
+.seed-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.seed{padding:3px 8px;border-radius:5px;font-size:11px;font-weight:500;background:var(--s3);border:1px solid var(--b2);color:var(--t2);cursor:pointer;transition:all .12s}
+.seed:hover{color:var(--accent);border-color:var(--adim)}
+
+/* TITLE METER */
+.title-wrap{margin-top:10px}
+.t-bar-bg{height:3px;background:var(--b2);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.t-bar{height:100%;border-radius:2px;transition:width .2s,background .2s}
+.t-info{display:flex;justify-content:space-between;font-size:10px;color:var(--t3)}
+.t-info .good{color:var(--green)}.t-info .warn{color:#F59E0B}.t-info .over{color:#EF4444}
+
+/* TAG INPUT */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:4px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:6px 8px;min-height:36px;cursor:text}
+.tags-wrap:focus-within{border-color:var(--accent)}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;background:var(--s3);border:1px solid var(--b2);color:var(--text);font-size:11px;padding:2px 7px;border-radius:5px}
+.tag-chip button{background:none;border:none;color:var(--t3);font-size:11px;cursor:pointer;padding:0;line-height:1}
+.tag-chip button:hover{color:var(--accent)}
+.tags-inp{border:none;background:transparent;color:var(--text);font-size:12px;outline:none;min-width:70px;flex:1}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-size:13px;font-weight:600;transition:all .12s;border:none;cursor:pointer;white-space:nowrap}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#EA6A0A}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}
+.btn-g:hover{color:var(--text);border-color:var(--b2);background:var(--s2)}
+.btn-sm{padding:6px 11px;font-size:11.5px;border-radius:8px}
+.btn-row{display:flex;gap:8px;margin-top:18px;align-items:center;flex-wrap:wrap}
+
+/* OUTPUT PANEL */
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.pcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pcard-label{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:5px}
+.pcard-label::before{content:'';width:2px;height:10px;background:var(--accent);border-radius:2px}
+.pcard-body{font-size:13px;color:var(--t2);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.pcard-empty{color:var(--t3);font-size:12px;font-style:italic;text-align:center;padding:16px 0}
+
+.cp-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;color:var(--t3);background:var(--s2);border:1px solid var(--border);cursor:pointer;transition:all .12s}
+.cp-btn:hover{color:var(--accent);border-color:var(--adim)}
+.cp-btn.ok{color:var(--green);border-color:rgba(34,197,94,.3)}
+
+.insight{background:var(--asoft);border:1px solid var(--adim);border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:var(--t2);line-height:1.55}
+.insight strong{color:var(--accent)}
+
+.faq-item{border-top:1px solid var(--border);padding:9px 0}
+.faq-q{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px}
+.faq-a{font-size:12.5px;color:var(--t2);line-height:1.5}
+
+.ptier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.ptier{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:12px}
+.ptier.star{border-color:var(--adim);background:var(--asoft)}
+.tier-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:3px}
+.tier-price{font-size:20px;font-weight:700;color:var(--text);line-height:1}
+.tier-price span{font-size:11px;color:var(--t3);font-weight:400}
+.tier-detail{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.4}
+
+.score-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.score-bg{flex:1;height:5px;background:var(--b2);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .4s}
+.score-n{font-size:12px;font-weight:700;color:var(--text);min-width:26px}
+
+.check-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:4px;margin-bottom:4px}
+.b-g{background:rgba(34,197,94,.1);color:var(--green)}
+.b-o{background:var(--asoft);color:var(--accent)}
+.b-b{background:rgba(59,130,246,.1);color:#93C5FD}
+
+.spin{width:13px;height:13px;border:2px solid rgba(249,115,22,.2);border-top-color:var(--accent);border-radius:50%;animation:rot .6s linear infinite;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">GF</div>
+    GigForge
+    <span class="logo-sub">/ Freelance Setup Studio</span>
+  </div>
+  <span class="top-badge">✦ AI-Powered</span>
+</div>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-label">Fiverr</div>
+    <div class="nav-item active" data-sec="fp" onclick="go('fp')"><span class="nav-icon" id="ni-fp">◎</span> Profile</div>
+    <div class="nav-item" data-sec="fg" onclick="go('fg')"><span class="nav-icon" id="ni-fg">◎</span> Gig Builder</div>
+    <div class="nav-div"></div>
+    <div class="sidebar-label">Upwork</div>
+    <div class="nav-item" data-sec="up" onclick="go('up')"><span class="nav-icon" id="ni-up">◎</span> Profile</div>
+    <div class="nav-item" data-sec="uw" onclick="go('uw')"><span class="nav-icon" id="ni-uw">◎</span> Proposal Writer</div>
+    <div class="nav-div"></div>
+    <div class="sidebar-label">Tools</div>
+    <div class="nav-item" data-sec="pc" onclick="go('pc')"><span class="nav-icon" id="ni-pc">◎</span> Pricing</div>
+  </div>
+
+  <div class="workspace">
+
+    <!-- ======== FIVERR PROFILE ======== -->
+    <div id="sec-fp" class="pane-l">
+      <div class="eyebrow">Fiverr</div>
+      <div class="sec-title">Profile Setup</div>
+      <div class="sec-sub">Tell the AI your niche and experience level. It handles the rest — bio, title, skill tags, and optimization tips.</div>
+
+      <div class="core-input-wrap">
+        <div class="core-label">What do you do? <span style="color:var(--t3);font-weight:400;font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px">— be specific</span></div>
+        <input class="core-input" id="fp-niche" placeholder="e.g. n8n automation for SaaS, Shopify store design, brand identity for startups">
+      </div>
+
+      <div class="opts-label">Experience level</div>
+      <div class="opts" id="fp-exp-opts">
+        <span class="opt" data-g="fp-exp" data-v="beginner (under 1 year)" onclick="pick(this)">Under 1 yr</span>
+        <span class="opt" data-g="fp-exp" data-v="1–2 years" onclick="pick(this)">1–2 yrs</span>
+        <span class="opt sel" data-g="fp-exp" data-v="3–5 years" onclick="pick(this)">3–5 yrs</span>
+        <span class="opt" data-g="fp-exp" data-v="5+ years" onclick="pick(this)">5+ yrs</span>
+        <span class="opt" data-g="fp-exp" data-v="10+ years senior level" onclick="pick(this)">10+ yrs</span>
+      </div>
+
+      <div class="opts-label">Profile tone</div>
+      <div class="opts">
+        <span class="opt sel" data-g="fp-tone" data-v="Professional & Direct" onclick="pick(this)">Professional</span>
+        <span class="opt" data-g="fp-tone" data-v="Bold & Confident" onclick="pick(this)">Bold</span>
+        <span class="opt" data-g="fp-tone" data-v="Friendly & Approachable" onclick="pick(this)">Friendly</span>
+        <span class="opt" data-g="fp-tone" data-v="Calm Expert" onclick="pick(this)">Calm Expert</span>
+      </div>
+
+      <div class="extra-toggle" onclick="toggleExtra(this,'fp-extra')">Optional details</div>
+      <div class="extra-fields" id="fp-extra">
+        <div class="field">
+          <div class="label">Best client result <span class="lnote">— specific numbers</span></div>
+          <input class="inp" id="fp-result" placeholder="e.g. Helped 3 clients hit $10K/month on Shopify">
+        </div>
+        <div class="field">
+          <div class="label">Certifications / education</div>
+          <input class="inp" id="fp-certs" placeholder="e.g. Google Ads certified, BSc Computer Science">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-p" id="fp-btn" data-label="Generate Profile" onclick="gen('fp')"><span>✦</span> Generate Profile</button>
+        <button class="btn btn-g btn-sm" onclick="clearSec('fp')">Clear</button>
+      </div>
+    </div>
+
+    <div id="sec-fp-r" class="pane-r">
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Profile Title</div><button class="cp-btn" onclick="cp('fp-title-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="fp-title-o"><span class="pcard-empty">Your optimized Fiverr profile title will appear here.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Profile Bio (600 char limit)</div><button class="cp-btn" onclick="cp('fp-bio-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="fp-bio-o"><span class="pcard-empty">Bio written to build trust before they ever click a gig. Appears after generating.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Skill Tags</div></div>
+        <div id="fp-tags-o"><span class="pcard-empty">Recommended Fiverr skill tags appear here.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">✦ Profile Checklist</div></div>
+        <div id="fp-tips-o"><span class="pcard-empty">Profile optimization checklist appears after generating.</span></div>
+      </div>
+    </div>
+
+    <!-- ======== FIVERR GIG ======== -->
+    <div id="sec-fg" class="pane-l" style="display:none">
+      <div class="eyebrow">Fiverr</div>
+      <div class="sec-title">Gig Builder</div>
+      <div class="sec-sub">Type your service. AI researches keywords, writes the title at the right length, builds the description and FAQ, and tells you how to rank it.</div>
+
+      <div class="core-input-wrap">
+        <div class="core-label">What service are you selling?</div>
+        <input class="core-input" id="fg-service" placeholder="e.g. Shopify store build, logo design for restaurants, n8n automation workflow" oninput="autoTitle()">
+      </div>
+
+      <!-- KEYWORD ENGINE -->
+      <div class="kw-box">
+        <div class="kw-head">
+          <div class="kw-title">🔍 Keyword Research</div>
+          <button class="btn btn-g btn-sm" onclick="kwSearch()">Find Keywords</button>
+        </div>
+        <div class="kw-legend"><span style="color:var(--green)">■</span> High demand &nbsp;<span style="color:#93C5FD">■</span> Opportunity &nbsp;<span style="color:var(--t3)">■</span> Low competition</div>
+        <div class="seed-row" id="kw-seeds">
+          <span class="seed" onclick="kwSeed('logo design')">logo design</span>
+          <span class="seed" onclick="kwSeed('shopify store')">shopify</span>
+          <span class="seed" onclick="kwSeed('wordpress website')">wordpress</span>
+          <span class="seed" onclick="kwSeed('n8n automation')">n8n</span>
+          <span class="seed" onclick="kwSeed('ai automation')">ai automation</span>
+          <span class="seed" onclick="kwSeed('video editing')">video editing</span>
+          <span class="seed" onclick="kwSeed('copywriting')">copywriting</span>
+          <span class="seed" onclick="kwSeed('social media content')">social media</span>
+        </div>
+        <div class="kw-pills" id="kw-results"><span style="font-size:11px;color:var(--t3)">Click "Find Keywords" or tap a seed above.</span></div>
+        <div id="kw-sel-wrap" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <div class="kw-legend" style="margin-bottom:5px">Selected — auto-injected into title &amp; tags</div>
+          <div id="kw-sel" class="kw-pills"></div>
+        </div>
+      </div>
+
+      <!-- TITLE WITH METER -->
+      <div class="field">
+        <div class="label">Gig Title <span class="lnote">— 55–65 chars ideal, starts "I will"</span></div>
+        <textarea class="ta" id="fg-title" style="min-height:44px;font-size:13px" oninput="titleMeter()" placeholder="Auto-filled when you type your service above. Edit freely."></textarea>
+        <div class="title-wrap">
+          <div class="t-bar-bg"><div class="t-bar" id="t-bar" style="width:0%"></div></div>
+          <div class="t-info"><span id="t-left">0 / 80</span><span id="t-right"></span></div>
+        </div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="field">
+        <div class="label">Gig Tags <span class="lnote">— 5 max · 20 chars each · auto-filled from keywords</span></div>
+        <div class="tags-wrap" id="tags-wrap" onclick="document.getElementById('tag-inp').focus()">
+          <input class="tags-inp" id="tag-inp" placeholder="Type + Enter to add" onkeydown="tagKey(event)" maxlength="20">
+        </div>
+        <div style="font-size:10px;color:var(--t3);margin-top:3px" id="tag-count">0 / 5 tags used</div>
+      </div>
+
+      <!-- PACKAGE PRICES -->
+      <div class="opts-label">Pricing style</div>
+      <div class="opts">
+        <span class="opt sel" data-g="fg-pstyle" data-v="entry" onclick="pick(this)">Entry ($15–50)</span>
+        <span class="opt" data-g="fg-pstyle" data-v="mid" onclick="pick(this)">Mid ($50–200)</span>
+        <span class="opt" data-g="fg-pstyle" data-v="premium" onclick="pick(this)">Premium ($200+)</span>
+        <span class="opt" data-g="fg-pstyle" data-v="custom" onclick="pick(this)">I'll set manually</span>
+      </div>
+
+      <div class="extra-toggle" onclick="toggleExtra(this,'fg-extra')">Optional details</div>
+      <div class="extra-fields" id="fg-extra">
+        <div class="field">
+          <div class="label">Target buyer type</div>
+          <input class="inp" id="fg-buyer" placeholder="e.g. ecom entrepreneurs, local restaurants, SaaS startups">
+        </div>
+        <div class="field">
+          <div class="label">Key deliverables</div>
+          <textarea class="ta" id="fg-deliverables" placeholder="What's included? e.g. custom logo, source files, 3 concepts, mobile optimized site"></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Your edge / USP</div>
+          <input class="inp" id="fg-usp" placeholder="e.g. Ex-agency, fast delivery, money-back guarantee">
+        </div>
+        <div class="field">
+          <div class="label">Niche down <span class="lnote">— optional specialization</span></div>
+          <input class="inp" id="fg-niche" placeholder="e.g. logos for restaurants, Shopify for fashion brands">
+        </div>
+        <div class="field">
+          <div class="label">Custom package prices ($)</div>
+          <div class="field-row cols3">
+            <input class="inp" type="number" id="fg-pb" placeholder="Basic" oninput="renderPkgs()">
+            <input class="inp" type="number" id="fg-ps" placeholder="Std" oninput="renderPkgs()">
+            <input class="inp" type="number" id="fg-pp" placeholder="Prem" oninput="renderPkgs()">
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Delivery days</div>
+          <div class="field-row cols3">
+            <input class="inp" type="number" id="fg-db" placeholder="Basic">
+            <input class="inp" type="number" id="fg-ds" placeholder="Std">
+            <input class="inp" type="number" id="fg-dp" placeholder="Prem">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-p" id="fg-btn" data-label="Build My Gig" onclick="gen('fg')"><span>✦</span> Build My Gig</button>
+        <button class="btn btn-g btn-sm" onclick="clearSec('fg')">Clear</button>
+      </div>
+    </div>
+
+    <div id="sec-fg-r" class="pane-r" style="display:none">
+      <div id="fg-insight-o"></div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Gig Title</div><button class="cp-btn" onclick="cp('fg-title-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="fg-title-o"><span class="pcard-empty">SEO-optimized title (55–65 chars) appears here.</span></div>
+        <div id="fg-tscore-wrap" style="display:none;margin-top:8px">
+          <div style="font-size:10px;color:var(--t3);margin-bottom:3px">Title strength</div>
+          <div class="score-row"><div class="score-bg"><div class="score-fill" id="fg-tscore-bar"></div></div><div class="score-n" id="fg-tscore-n"></div></div>
+        </div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Gig Description (900–1100 chars)</div><button class="cp-btn" onclick="cp('fg-desc-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="fg-desc-o"><span class="pcard-empty">Full gig description structured for readability and algorithm placement.</span></div>
+        <div id="fg-cc" style="font-size:10px;color:var(--t3);margin-top:5px"></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">FAQ — 3 Questions</div><button class="cp-btn" onclick="cp('fg-faq-o')">⧉ Copy</button></div>
+        <div id="fg-faq-o"><span class="pcard-empty">Three real buyer FAQs appear after generating.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Package Overview</div></div>
+        <div id="fg-pkg-o"><span class="pcard-empty">Package pricing preview appears here.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">✦ Ranking Strategy</div></div>
+        <div id="fg-strat-o"><span class="pcard-empty">Personalized ranking strategy for this gig after generating.</span></div>
+      </div>
+    </div>
+
+    <!-- ======== UPWORK PROFILE ======== -->
+    <div id="sec-up" class="pane-l" style="display:none">
+      <div class="eyebrow">Upwork</div>
+      <div class="sec-title">Profile Setup</div>
+      <div class="sec-sub">One input. AI builds your headline, full overview, and specializations — opening with a result, not "I am".</div>
+
+      <div class="core-input-wrap">
+        <div class="core-label">What do you do + who do you help?</div>
+        <input class="core-input" id="up-niche" placeholder="e.g. n8n automation for SaaS companies, Shopify development for e-commerce brands">
+      </div>
+
+      <div class="opts-label">Experience level</div>
+      <div class="opts">
+        <span class="opt" data-g="up-exp" data-v="1–2 years" onclick="pick(this)">1–2 yrs</span>
+        <span class="opt sel" data-g="up-exp" data-v="3–5 years" onclick="pick(this)">3–5 yrs</span>
+        <span class="opt" data-g="up-exp" data-v="5–8 years" onclick="pick(this)">5–8 yrs</span>
+        <span class="opt" data-g="up-exp" data-v="10+ years" onclick="pick(this)">10+ yrs</span>
+      </div>
+
+      <div class="opts-label">Tone</div>
+      <div class="opts">
+        <span class="opt sel" data-g="up-tone" data-v="Confident & Direct" onclick="pick(this)">Confident</span>
+        <span class="opt" data-g="up-tone" data-v="Warm Expert" onclick="pick(this)">Warm Expert</span>
+        <span class="opt" data-g="up-tone" data-v="Results-Focused" onclick="pick(this)">Results-Focused</span>
+        <span class="opt" data-g="up-tone" data-v="Problem Solver" onclick="pick(this)">Problem Solver</span>
+      </div>
+
+      <div class="opts-label">Hourly rate range</div>
+      <div class="opts">
+        <span class="opt" data-g="up-rate" data-v="$15–25/hr" onclick="pick(this)">$15–25</span>
+        <span class="opt sel" data-g="up-rate" data-v="$25–45/hr" onclick="pick(this)">$25–45</span>
+        <span class="opt" data-g="up-rate" data-v="$45–75/hr" onclick="pick(this)">$45–75</span>
+        <span class="opt" data-g="up-rate" data-v="$75–150/hr" onclick="pick(this)">$75–150</span>
+        <span class="opt" data-g="up-rate" data-v="$150+/hr" onclick="pick(this)">$150+</span>
+      </div>
+
+      <div class="extra-toggle" onclick="toggleExtra(this,'up-extra')">Add specific details (improves output)</div>
+      <div class="extra-fields" id="up-extra">
+        <div class="field">
+          <div class="label">Best result for a client <span class="lnote">— numbers preferred</span></div>
+          <input class="inp" id="up-result" placeholder="e.g. Cut client admin from 6hrs to 20min/day with automation">
+        </div>
+        <div class="field">
+          <div class="label">Key tools / tech stack</div>
+          <input class="inp" id="up-tools" placeholder="e.g. React, n8n, Figma, Webflow, Zapier, Airtable">
+        </div>
+        <div class="field">
+          <div class="label">Industries you serve best</div>
+          <input class="inp" id="up-niches" placeholder="e.g. SaaS, real estate, e-commerce, health & wellness">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-p" id="up-btn" data-label="Generate Profile" onclick="gen('up')"><span>✦</span> Generate Profile</button>
+        <button class="btn btn-g btn-sm" onclick="clearSec('up')">Clear</button>
+      </div>
+    </div>
+
+    <div id="sec-up-r" class="pane-r" style="display:none">
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Headline</div><button class="cp-btn" onclick="cp('up-title-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="up-title-o"><span class="pcard-empty">Your Upwork headline will appear here.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Overview (500–600 words)</div><button class="cp-btn" onclick="cp('up-bio-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="up-bio-o"><span class="pcard-empty">Full Upwork overview — opens with a result, not "I am". Appears after generating.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Specializations</div><button class="cp-btn" onclick="cp('up-spec-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="up-spec-o"><span class="pcard-empty">Specialization bullets for your Upwork sidebar will appear here.</span></div>
+      </div>
+    </div>
+
+    <!-- ======== UPWORK PROPOSAL ======== -->
+    <div id="sec-uw" class="pane-l" style="display:none">
+      <div class="eyebrow">Upwork</div>
+      <div class="sec-title">Proposal Writer</div>
+      <div class="sec-sub">Paste the job post. Select your skill and tone. AI writes a proposal that opens with their problem — never with "I".</div>
+
+      <div class="core-input-wrap">
+        <div class="core-label">Paste the job post here</div>
+        <textarea class="core-textarea" id="uw-job" placeholder="Paste the full job description. The more detail the better — AI extracts the client's real problem from it."></textarea>
+      </div>
+
+      <div class="opts-label">Your skill for this job</div>
+      <div class="opts" id="uw-skill-opts">
+        <span class="opt" data-g="uw-skill" data-v="web development" onclick="pick(this)">Web Dev</span>
+        <span class="opt" data-g="uw-skill" data-v="automation / n8n / Zapier" onclick="pick(this)">Automation</span>
+        <span class="opt" data-g="uw-skill" data-v="UI/UX design" onclick="pick(this)">UI/UX</span>
+        <span class="opt" data-g="uw-skill" data-v="copywriting" onclick="pick(this)">Copywriting</span>
+        <span class="opt" data-g="uw-skill" data-v="SEO" onclick="pick(this)">SEO</span>
+        <span class="opt" data-g="uw-skill" data-v="graphic design" onclick="pick(this)">Graphic Design</span>
+        <span class="opt" data-g="uw-skill" data-v="video editing" onclick="pick(this)">Video</span>
+        <span class="opt" data-g="uw-skill" data-v="AI / machine learning" onclick="pick(this)">AI/ML</span>
+        <span class="opt multi" data-g="uw-skill-custom" data-v="" onclick="toggleCustomSkill(this)">Other ✎</span>
+      </div>
+      <input class="inp" id="uw-skill-custom" placeholder="Type your skill..." style="margin-top:6px;display:none">
+
+      <div class="opts-label">Proposal tone</div>
+      <div class="opts">
+        <span class="opt sel" data-g="uw-tone" data-v="Confident & Direct" onclick="pick(this)">Confident</span>
+        <span class="opt" data-g="uw-tone" data-v="Warm & Collaborative" onclick="pick(this)">Warm</span>
+        <span class="opt" data-g="uw-tone" data-v="Expert & Concise" onclick="pick(this)">Concise</span>
+        <span class="opt" data-g="uw-tone" data-v="Problem-Solver" onclick="pick(this)">Problem-Solver</span>
+      </div>
+
+      <div class="opts-label">Length</div>
+      <div class="opts">
+        <span class="opt" data-g="uw-len" data-v="short (150–200 words)" onclick="pick(this)">Short</span>
+        <span class="opt sel" data-g="uw-len" data-v="medium (250–320 words)" onclick="pick(this)">Medium</span>
+        <span class="opt" data-g="uw-len" data-v="long (380–450 words)" onclick="pick(this)">Long</span>
+      </div>
+
+      <div class="extra-toggle" onclick="toggleExtra(this,'uw-extra')">Add your details (improves relevance)</div>
+      <div class="extra-fields" id="uw-extra">
+        <div class="field">
+          <div class="label">Relevant past experience — 1–2 lines</div>
+          <textarea class="ta" id="uw-exp" placeholder="e.g. Built a lead capture automation for a SaaS agency that cut manual follow-up from 4hrs to 15min/day"></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Your proposed approach</div>
+          <textarea class="ta" id="uw-approach" placeholder="How would you start? e.g. First I'd review their existing workflow, map the triggers, then build in phases..."></textarea>
+        </div>
+        <div class="field">
+          <div class="label">What you need to begin <span class="lnote">— trust signal</span></div>
+          <input class="inp" id="uw-need" placeholder="e.g. API docs, access to their CRM, confirmation of preferred tools">
+        </div>
+        <div class="field">
+          <div class="label">Your bid / rate</div>
+          <input class="inp" id="uw-bid" placeholder="e.g. $30/hr or $500 fixed">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-p" id="uw-btn" data-label="Write Proposal" onclick="gen('uw')"><span>✦</span> Write Proposal</button>
+        <button class="btn btn-g btn-sm" onclick="clearSec('uw')">Clear</button>
+      </div>
+    </div>
+
+    <div id="sec-uw-r" class="pane-r" style="display:none">
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Opening Hook <span style="font-size:10px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px">— the part they read first</span></div><button class="cp-btn" onclick="cp('uw-hook-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="uw-hook-o"><span class="pcard-empty">First 2 lines of the proposal — references something specific from their job post.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Full Proposal</div><button class="cp-btn" onclick="cp('uw-prop-o')">⧉ Copy</button></div>
+        <div class="pcard-body" id="uw-prop-o"><span class="pcard-empty">Full proposal structured as: problem first → approach → proof → what you need → next step.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">✦ Quality Check</div></div>
+        <div id="uw-check-o"><span class="pcard-empty">Quality breakdown with scores appears after generating.</span></div>
+      </div>
+    </div>
+
+    <!-- ======== PRICING ======== -->
+    <div id="sec-pc" class="pane-l" style="display:none">
+      <div class="eyebrow">Tools</div>
+      <div class="sec-title">Pricing Calculator</div>
+      <div class="sec-sub">Enter your service and hourly rate. AI calculates tier prices and writes creative package names that anchor buyers to the middle tier.</div>
+
+      <div class="core-input-wrap">
+        <div class="core-label">What service are you pricing?</div>
+        <input class="core-input" id="pc-service" placeholder="e.g. Logo design, WordPress website, SEO audit, n8n automation">
+      </div>
+
+      <div class="opts-label">Your target market</div>
+      <div class="opts">
+        <span class="opt" data-g="pc-mkt" data-v="budget/beginner market" onclick="pick(this)">Budget</span>
+        <span class="opt sel" data-g="pc-mkt" data-v="mid-market (small businesses)" onclick="pick(this)">Mid-market</span>
+        <span class="opt" data-g="pc-mkt" data-v="premium established brands" onclick="pick(this)">Premium</span>
+        <span class="opt" data-g="pc-mkt" data-v="enterprise / agencies" onclick="pick(this)">Enterprise</span>
+      </div>
+
+      <div class="opts-label">Hourly rate ($)</div>
+      <div class="opts">
+        <span class="opt" data-g="pc-rate" data-v="15" onclick="pick(this)">$15</span>
+        <span class="opt" data-g="pc-rate" data-v="20" onclick="pick(this)">$20</span>
+        <span class="opt sel" data-g="pc-rate" data-v="25" onclick="pick(this)">$25</span>
+        <span class="opt" data-g="pc-rate" data-v="35" onclick="pick(this)">$35</span>
+        <span class="opt" data-g="pc-rate" data-v="50" onclick="pick(this)">$50</span>
+        <span class="opt" data-g="pc-rate" data-v="75" onclick="pick(this)">$75</span>
+        <span class="opt" data-g="pc-rate" data-v="100" onclick="pick(this)">$100</span>
+      </div>
+
+      <div class="opts-label">Estimated hours per tier</div>
+      <div class="field-row cols3" style="margin-bottom:4px">
+        <div>
+          <div class="label">Basic</div>
+          <input class="inp" type="number" id="pc-hb" placeholder="hrs" oninput="calcLive()">
+        </div>
+        <div>
+          <div class="label">Standard</div>
+          <input class="inp" type="number" id="pc-hs" placeholder="hrs" oninput="calcLive()">
+        </div>
+        <div>
+          <div class="label">Premium</div>
+          <input class="inp" type="number" id="pc-hp" placeholder="hrs" oninput="calcLive()">
+        </div>
+      </div>
+
+      <div class="opts-label">Profit multiplier</div>
+      <div class="opts">
+        <span class="opt" data-g="pc-mult" data-v="1.3" onclick="pick(this);calcLive()">1.3x</span>
+        <span class="opt" data-g="pc-mult" data-v="1.5" onclick="pick(this);calcLive()">1.5x</span>
+        <span class="opt sel" data-g="pc-mult" data-v="1.8" onclick="pick(this);calcLive()">1.8x</span>
+        <span class="opt" data-g="pc-mult" data-v="2.0" onclick="pick(this);calcLive()">2x</span>
+        <span class="opt" data-g="pc-mult" data-v="2.5" onclick="pick(this);calcLive()">2.5x</span>
+      </div>
+
+      <div class="extra-toggle" onclick="toggleExtra(this,'pc-extra')">What each tier includes (for AI naming)</div>
+      <div class="extra-fields" id="pc-extra">
+        <div class="field">
+          <textarea class="ta" id="pc-includes" placeholder="e.g. Basic: 1 concept, 3 revisions. Standard: 3 concepts, source files. Premium: full brand kit, unlimited revisions."></textarea>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-p" id="pc-btn" data-label="Build Packages" onclick="gen('pc')"><span>✦</span> Build Packages</button>
+        <button class="btn btn-g btn-sm" onclick="calcLive()">⟳ Calculate</button>
+      </div>
+    </div>
+
+    <div id="sec-pc-r" class="pane-r" style="display:none">
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Price Calculation</div></div>
+        <div id="pc-calc-o"><span class="pcard-empty">Select your rate and enter hours per tier to see calculated prices.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">Package Names + Positioning</div><button class="cp-btn" onclick="cp('pc-names-o')">⧉ Copy</button></div>
+        <div id="pc-names-o"><span class="pcard-empty">Creative package names and taglines appear after generating.</span></div>
+      </div>
+      <div class="pcard">
+        <div class="pcard-head"><div class="pcard-label">✦ Pricing Strategy</div></div>
+        <div id="pc-strat-o"><span class="pcard-empty">Anchoring and positioning advice for this service appears here.</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CORE STATE
+// ============================================================
+const PICKS = {};
+const TAGS = [];
+const SEL_KW = [];
+const API = 'https://api.anthropic.com/v1/messages';
+
+// ============================================================
+// NAV
+// ============================================================
+const SECS = ['fp','fg','up','uw','pc'];
+function go(s) {
+  SECS.forEach(x => {
+    const l=document.getElementById('sec-'+x), r=document.getElementById('sec-'+x+'-r'), n=document.querySelector('[data-sec="'+x+'"]');
+    if(l)l.style.display='none'; if(r)r.style.display='none'; if(n)n.classList.remove('active');
+  });
+  document.getElementById('sec-'+s).style.display='block';
+  document.getElementById('sec-'+s+'-r').style.display='block';
+  document.querySelector('[data-sec="'+s+'"]').classList.add('active');
+}
+
+// ============================================================
+// PILL PICKER
+// ============================================================
+function pick(el) {
+  const g = el.dataset.g;
+  document.querySelectorAll('[data-g="'+g+'"]').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  PICKS[g] = el.dataset.v;
+  // live calc for pricing
+  if(g==='pc-rate'||g==='pc-mult') calcLive();
+}
+function gp(g, fallback) { return PICKS[g] || fallback || ''; }
+
+function toggleCustomSkill(el) {
+  const inp = document.getElementById('uw-skill-custom');
+  el.classList.toggle('sel');
+  inp.style.display = el.classList.contains('sel') ? 'block' : 'none';
+  if(el.classList.contains('sel')) inp.focus();
+}
+
+// ============================================================
+// EXTRA FIELDS TOGGLE
+// ============================================================
+function toggleExtra(el, id) {
+  el.classList.toggle('open');
+  const f = document.getElementById(id);
+  f.classList.toggle('open');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function v(id) { return (document.getElementById(id)||{}).value?.trim()||''; }
+function set(id,txt){ const e=document.getElementById(id); if(e)e.textContent=txt; }
+function setH(id,html){ const e=document.getElementById(id); if(e)e.innerHTML=html; }
+function clearSec(sec) {
+  document.querySelectorAll('#sec-'+sec+' input,#sec-'+sec+' textarea').forEach(f=>f.value='');
+  TAGS.length=0; SEL_KW.length=0; renderTags(); setH('kw-results','<span style="font-size:11px;color:var(--t3)">Search keywords above.</span>');
+}
+function markDone(sec){ const i=document.getElementById('ni-'+sec); if(i){i.textContent='✓';i.style.color='var(--green)'} }
+
+function cp(id) {
+  const el=document.getElementById(id); if(!el) return;
+  const txt=el.innerText.trim(); if(!txt||txt.length<5) return;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=el.closest('.pcard')?.querySelector('.cp-btn');
+    if(b){const o=b.textContent;b.textContent='✓ Copied!';b.classList.add('ok');setTimeout(()=>{b.textContent=o;b.classList.remove('ok')},2000)}
+  });
+}
+
+function setLoading(id, on) {
+  const b=document.getElementById(id); if(!b) return;
+  if(on){b.disabled=true;b.innerHTML='<div class="spin"></div> Generating...';}
+  else{b.disabled=false;b.innerHTML='<span>✦</span> '+b.dataset.label;}
+}
+
+// ============================================================
+// TITLE METER
+// ============================================================
+function titleMeter() {
+  const inp=document.getElementById('fg-title'); if(!inp) return;
+  const len=inp.value.length;
+  const bar=document.getElementById('t-bar'), lft=document.getElementById('t-left'), rgt=document.getElementById('t-right');
+  bar.style.width=Math.min(len/80*100,100)+'%';
+  bar.style.background=len<=55?'var(--accent)':len<=65?'var(--green)':len<=80?'#F59E0B':'#EF4444';
+  lft.textContent=len+' / 80';
+  rgt.className=''; rgt.textContent='';
+  if(len>0&&len<30){rgt.textContent='Too short';rgt.className='warn';}
+  else if(len<=55){rgt.textContent='Add a benefit';rgt.className='warn';}
+  else if(len<=65){rgt.textContent='✓ Perfect range';rgt.className='good';}
+  else if(len<=80){rgt.textContent='May truncate mobile';rgt.className='warn';}
+  else{rgt.textContent='Over limit!';rgt.className='over';}
+}
+function autoTitle() {
+  const svc=v('fg-service'), inp=document.getElementById('fg-title');
+  if(!inp||inp.value) return;
+  if(svc.length>3){inp.value='I will '+svc.toLowerCase();titleMeter();}
+}
+
+// ============================================================
+// TAG SYSTEM
+// ============================================================
+function tagKey(e) {
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const inp=document.getElementById('tag-inp');
+    const val=inp.value.trim().toLowerCase().replace(/[^a-z0-9 ]/g,'').slice(0,20);
+    if(!val||TAGS.includes(val)||TAGS.length>=5) return;
+    TAGS.push(val); renderTags(); inp.value='';
+  }
+}
+function removeTag(t){ const i=TAGS.indexOf(t); if(i>-1)TAGS.splice(i,1); renderTags(); }
+function renderTags() {
+  const wrap=document.getElementById('tags-wrap'), inp=document.getElementById('tag-inp');
+  [...wrap.querySelectorAll('.tag-chip')].forEach(e=>e.remove());
+  TAGS.forEach(t=>{
+    const c=document.createElement('span'); c.className='tag-chip';
+    c.innerHTML=t+' <button onclick="removeTag(\''+t+'\')">×</button>';
+    wrap.insertBefore(c,inp);
+  });
+  const ct=document.getElementById('tag-count'); if(ct) ct.textContent=TAGS.length+' / 5 tags used';
+}
+
+// ============================================================
+// KEYWORD RESEARCH
+// ============================================================
+function kwSeed(term){ document.getElementById('fg-service').value=term; autoTitle(); kwSearch(); }
+async function kwSearch() {
+  const seed=v('fg-service')||v('fg-kw-seed')||''; if(!seed){alert('Enter a service first');return;}
+  const el=document.getElementById('kw-results');
+  el.innerHTML='<div class="spin"></div>';
+  try{
+    const txt=await callAI(`You are a Fiverr keyword research expert. For the service: "${seed}" — generate 14 keyword phrases that buyers actually type into Fiverr search. Mix: high-demand terms (proven searches, more competition), opportunity terms (medium demand, rankable for new sellers), and long-tail niche terms (lower competition, very specific). New sellers should target opportunity and long-tail first.
+Return ONLY valid JSON no markdown:
+{"keywords":[{"phrase":"exact buyer search phrase","tier":"high|opportunity|low","reason":"why this matters in one sentence"}]}`);
+    const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+    renderKw(d.keywords||[]);
+  }catch(e){el.innerHTML='<span style="font-size:11px;color:var(--t3)">Research failed. Try again.</span>';}
+}
+function renderKw(kws){
+  const el=document.getElementById('kw-results');
+  el.innerHTML=kws.map(k=>{
+    const cls=k.tier==='high'?'kw-h':k.tier==='opportunity'?'kw-m':'kw-l';
+    const safe=k.phrase.replace(/'/g,"\\'");
+    return`<span class="kw-chip ${cls}" title="${k.reason}" onclick="kwToggle(this,'${safe}')"><span class="kw-dot"></span>${k.phrase}</span>`;
+  }).join('');
+}
+function kwToggle(el,phrase){
+  el.classList.toggle('ksel');
+  const i=SEL_KW.indexOf(phrase);
+  i>-1?SEL_KW.splice(i,1):SEL_KW.push(phrase);
+  renderSelKw();
+}
+function renderSelKw(){
+  const wrap=document.getElementById('kw-sel-wrap'), sel=document.getElementById('kw-sel');
+  if(!SEL_KW.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  sel.innerHTML=SEL_KW.map(k=>`<span class="kw-chip kw-h ksel">${k}</span>`).join('');
+  // inject into title if empty
+  const ti=document.getElementById('fg-title');
+  if(ti&&!ti.value&&SEL_KW[0]){ti.value='I will '+SEL_KW[0];titleMeter();}
+  // inject into tags
+  SEL_KW.slice(0,5).forEach(k=>{const t=k.slice(0,20);if(!TAGS.includes(t)&&TAGS.length<5){TAGS.push(t);}});
+  renderTags();
+}
+
+// ============================================================
+// PRICING CALC
+// ============================================================
+function calcLive(){
+  const h=parseFloat(gp('pc-rate','25')), mult=parseFloat(gp('pc-mult','1.8'));
+  const hb=parseFloat(v('pc-hb')||0), hs=parseFloat(v('pc-hs')||0), hp=parseFloat(v('pc-hp')||0);
+  const el=document.getElementById('pc-calc-o'); if(!el) return;
+  if(!hb&&!hs&&!hp){el.innerHTML='<span class="pcard-empty">Enter hours per tier to calculate prices.</span>';return;}
+  const price=hr=>hr?Math.ceil(h*hr*mult/5)*5:null;
+  const pb=price(hb),ps=price(hs),pp=price(hp);
+  el.innerHTML=`<div class="ptier-grid">
+    ${pb?`<div class="ptier"><div class="tier-name">Basic</div><div class="tier-price">$${pb}</div><div class="tier-detail">${hb}h × $${h} × ${mult}x</div></div>`:''}
+    ${ps?`<div class="ptier star"><div class="tier-name">Standard ⭐</div><div class="tier-price">$${ps}</div><div class="tier-detail">${hs}h × $${h} × ${mult}x</div></div>`:''}
+    ${pp?`<div class="ptier"><div class="tier-name">Premium</div><div class="tier-price">$${pp}</div><div class="tier-detail">${hp}h × $${h} × ${mult}x</div></div>`:''}
+  </div><div style="margin-top:8px;font-size:10px;color:var(--t3)">+${Math.round((mult-1)*100)}% above cost price</div>`;
+}
+function renderPkgs(){
+  const pb=v('fg-pb'),ps=v('fg-ps'),pp=v('fg-pp'),db=v('fg-db'),ds=v('fg-ds'),dp=v('fg-dp');
+  const el=document.getElementById('fg-pkg-o'); if(!el) return;
+  if(!pb&&!ps&&!pp){el.innerHTML='<span class="pcard-empty">Enter prices in optional details.</span>';return;}
+  el.innerHTML=`<div class="ptier-grid">
+    ${pb?`<div class="ptier"><div class="tier-name">Basic</div><div class="tier-price">$${pb}</div>${db?`<div class="tier-detail">${db}-day delivery</div>`:''}</div>`:''}
+    ${ps?`<div class="ptier star"><div class="tier-name">Standard</div><div class="tier-price">$${ps}</div>${ds?`<div class="tier-detail">${ds}-day delivery</div>`:''}</div>`:''}
+    ${pp?`<div class="ptier"><div class="tier-name">Premium</div><div class="tier-price">$${pp}</div>${dp?`<div class="tier-detail">${dp}-day delivery</div>`:''}</div>`:''}
+  </div>`;
+}
+
+// ============================================================
+// API
+// ============================================================
+async function callAI(prompt, maxTok=1000, sys) {
+  const s=sys||'You are a world-class freelance strategist for Fiverr and Upwork. You write sharp, specific, high-converting copy based on real platform data. Never use "passionate", "dedicated", "hardworking", "guru", "ninja", "rockstar". Never start a sentence with "I am highly". Respond ONLY with valid JSON. No markdown, no backticks, no preamble.';
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTok,system:s,messages:[{role:'user',content:prompt}]})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error?.message||'API error');
+  return d.content?.[0]?.text||'{}';
+}
+
+// ============================================================
+// GENERATE DISPATCHER
+// ============================================================
+async function gen(sec) {
+  const id=sec+'-btn';
+  setLoading(id,true);
+  try{
+    if(sec==='fp') await genFP();
+    else if(sec==='fg') await genFG();
+    else if(sec==='up') await genUP();
+    else if(sec==='uw') await genUW();
+    else if(sec==='pc'){ calcLive(); await genPC(); }
+    markDone(sec);
+  }catch(e){console.error(e);alert('Generation failed: '+e.message);}
+  finally{setLoading(id,false);}
+}
+
+// ============================================================
+// FIVERR PROFILE
+// ============================================================
+async function genFP() {
+  const niche=v('fp-niche'); if(!niche) throw new Error('Enter what you do first.');
+  const txt=await callAI(`Write a complete Fiverr seller profile.
+Niche/Service: ${niche}
+Experience: ${gp('fp-exp','3–5 years')}
+Tone: ${gp('fp-tone','Professional & Direct')}
+Best result: ${v('fp-result')||'not provided — infer something believable based on niche'}
+Certifications: ${v('fp-certs')||'none specified'}
+
+RULES:
+- Profile title: under 60 chars, keyword-rich for search, outcome-focused, NOT "I am a..."
+- Bio: exactly under 600 chars. Open with a specific deliverable/result claim. Never "I am" or "I have been". Show what the buyer GETS. Close with a micro-CTA.
+- Skill tags: 5 tags — think exactly what buyers type in Fiverr search. Under 20 chars each.
+- Tips: 4 specific actions to optimize this profile for the Fiverr algorithm (response time, video, etc.)
+
+Return ONLY:
+{"title":"...","bio":"...","tags":["...","...","...","...","..."],"tips":["...","...","...","..."]}`,900);
+  const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+  set('fp-title-o',d.title||'');
+  set('fp-bio-o',d.bio||'');
+  if(d.tags) setH('fp-tags-o',d.tags.map(t=>`<span class="kw-chip kw-h" style="margin:2px">${t}</span>`).join(''));
+  if(d.tips) setH('fp-tips-o',d.tips.map((t,i)=>`<div style="display:flex;gap:8px;margin-bottom:8px;font-size:12.5px;color:var(--t2)"><span style="color:var(--accent);font-weight:700;flex-shrink:0">${i+1}.</span>${t}</div>`).join(''));
+}
+
+// ============================================================
+// FIVERR GIG
+// ============================================================
+async function genFG() {
+  const svc=v('fg-service'); if(!svc) throw new Error('Enter your service first.');
+  const kws=SEL_KW.join(', ')||'none — AI should suggest based on service';
+  const pstyle=gp('fg-pstyle','mid');
+  const priceContext=v('fg-pb')?`Basic $${v('fg-pb')}, Standard $${v('fg-ps')}, Premium $${v('fg-pp')}`:`Pricing style: ${pstyle} — AI should suggest appropriate price ranges`;
+  const currentTitle=v('fg-title');
+
+  const txt=await callAI(`Write a complete, algorithm-optimized Fiverr gig.
+Service: ${svc}
+Current title draft: ${currentTitle||'generate from scratch'}
+Keywords researched: ${kws}
+Buyer type: ${v('fg-buyer')||'infer from service'}
+Deliverables: ${v('fg-deliverables')||'infer the standard deliverables for this service type'}
+USP: ${v('fg-usp')||'infer a realistic edge based on service type'}
+Niche focus: ${v('fg-niche')||'general — no specific niche down'}
+Pricing: ${priceContext}
+Delivery days: Basic ${v('fg-db')||'infer'}, Std ${v('fg-ds')||'infer'}, Prem ${v('fg-dp')||'infer'}
+
+FIVERR 2026 ALGORITHM RULES — FOLLOW EXACTLY:
+TITLE: Must start "I will". Primary keyword in first 4 words after "I will". Total 55–65 chars. NO clichés (amazing, best, professional, top-notch). Include a specific benefit or outcome in the title. Natural language — no keyword stuffing.
+DESCRIPTION: 900–1100 chars. Structure: bold 1-line opener (what you DO and FOR WHO), 2–3 sentences of service explanation, deliverables as dash bullet list, 2 lines of why choose me (specific not generic), clear CTA last line. First 100 chars especially important — that's what buyers see before clicking "read more". Weave primary keyword naturally in first paragraph. No keyword stuffing.
+FAQ: 3 questions real buyers ask before ordering (not vague — e.g. "Do you provide source files?" "What if I need revisions?" "Can you match my brand?")
+TAGS: 5 tags buyers actually search. Mix: 2 high-volume (harder to rank), 3 opportunity/niche (easier to rank for new gigs). Max 20 chars each.
+TITLE SCORE: Rate the generated title 1–10 on keyword fit + natural readability.
+INSIGHT: One sentence about the biggest opportunity in this gig niche right now on Fiverr.
+STRATEGY: 3 specific ranking actions for THIS gig in the first 30 days.
+
+Return ONLY:
+{"title":"...","title_score":8,"description":"...","faq":[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}],"tags":["...","...","...","...","..."],"insight":"...","strategy":["action 1","action 2","action 3"],"suggested_prices":{"basic":0,"standard":0,"premium":0}}`,1000);
+
+  const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+
+  // Title
+  const titleEl=document.getElementById('fg-title-o'); if(titleEl) titleEl.textContent=d.title||'';
+  if(d.title_score){
+    document.getElementById('fg-tscore-wrap').style.display='block';
+    document.getElementById('fg-tscore-bar').style.width=(d.title_score*10)+'%';
+    document.getElementById('fg-tscore-n').textContent=d.title_score+'/10';
+  }
+  // Update title input too
+  if(d.title){const ti=document.getElementById('fg-title');if(ti){ti.value=d.title;titleMeter();}}
+
+  // Description
+  const desc=d.description||'';
+  set('fg-desc-o',desc);
+  const cc=document.getElementById('fg-cc');
+  if(cc) cc.textContent=desc.length+' chars '+(desc.length<900?'(a bit short)':desc.length>1100?'(over — trim slightly)':'(✓ ideal length)');
+
+  // FAQ
+  if(d.faq) setH('fg-faq-o',d.faq.map(f=>`<div class="faq-item"><div class="faq-q">${f.q}</div><div class="faq-a">${f.a}</div></div>`).join(''));
+
+  // Tags — inject into tag system
+  if(d.tags){
+    d.tags.forEach(t=>{const tag=t.toLowerCase().slice(0,20);if(!TAGS.includes(tag)&&TAGS.length<5)TAGS.push(tag);});
+    renderTags();
+  }
+
+  // Insight
+  if(d.insight) setH('fg-insight-o',`<div class="insight"><strong>Market insight:</strong> ${d.insight}</div>`);
+
+  // Strategy
+  if(d.strategy) setH('fg-strat-o',d.strategy.map((s,i)=>`<div style="display:flex;gap:8px;margin-bottom:8px;font-size:12.5px;color:var(--t2)"><span style="color:var(--accent);font-weight:700;flex-shrink:0">${i+1}.</span>${s}</div>`).join(''));
+
+  // Suggested prices (if no manual prices set)
+  if(d.suggested_prices&&!v('fg-pb')){
+    const {basic,standard,premium}=d.suggested_prices;
+    setH('fg-pkg-o',`<div class="insight" style="margin-bottom:8px"><strong>AI-suggested prices:</strong> Based on ${pstyle} market positioning.</div><div class="ptier-grid">
+      ${basic?`<div class="ptier"><div class="tier-name">Basic</div><div class="tier-price">$${basic}</div></div>`:''}
+      ${standard?`<div class="ptier star"><div class="tier-name">Standard</div><div class="tier-price">$${standard}</div></div>`:''}
+      ${premium?`<div class="ptier"><div class="tier-name">Premium</div><div class="tier-price">$${premium}</div></div>`:''}
+    </div>`);
+  } else renderPkgs();
+}
+
+// ============================================================
+// UPWORK PROFILE
+// ============================================================
+async function genUP() {
+  const niche=v('up-niche'); if(!niche) throw new Error('Enter what you do first.');
+  const txt=await callAI(`Write a complete Upwork freelancer profile.
+Service + audience: ${niche}
+Experience: ${gp('up-exp','3–5 years')}
+Tone: ${gp('up-tone','Confident & Direct')}
+Rate: ${gp('up-rate','$25–45/hr')}
+Best client result: ${v('up-result')||'infer a realistic strong result for this niche'}
+Tools/tech: ${v('up-tools')||'infer the standard tools for this service'}
+Niches: ${v('up-niches')||'infer the best-fit industries for this service'}
+
+UPWORK RULES:
+- Headline: under 50 chars, keyword-rich, CLIENT-outcome focused (not "I am an experienced...")
+- Bio: 480–560 words. OPEN with a specific result statement or bold claim — what do clients get when they hire you? NOT "I am" or "I have". Second paragraph: your process/approach. Third: specific tools mentioned naturally. Fourth: who you work best with. Close: soft CTA question. Zero clichés.
+- Specializations: 4 bullets each starting with a skill keyword, max 2 lines each
+
+Return ONLY:
+{"headline":"...","bio":"...","specializations":["...","...","...","..."]}`,1000);
+  const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+  set('up-title-o',d.headline||'');
+  set('up-bio-o',d.bio||'');
+  if(d.specializations) set('up-spec-o',d.specializations.map(s=>'• '+s).join('\n'));
+}
+
+// ============================================================
+// UPWORK PROPOSAL
+// ============================================================
+async function genUW() {
+  const job=v('uw-job'); if(!job||job.length<30) throw new Error('Paste the job description first.');
+  const skill = v('uw-skill-custom')||gp('uw-skill','freelancing');
+  const txt=await callAI(`Write a winning Upwork proposal.
+
+JOB POST:
+"""${job}"""
+
+MY SKILL: ${skill}
+MY EXPERIENCE: ${v('uw-exp')||'infer a realistic background for this skill'}
+MY APPROACH: ${v('uw-approach')||'infer a smart approach based on the job requirements'}
+WHAT I NEED TO BEGIN: ${v('uw-need')||'infer what files/access/info would be needed'}
+MY BID: ${v('uw-bid')||'not specified'}
+TONE: ${gp('uw-tone','Confident & Direct')}
+LENGTH: ${gp('uw-len','medium (250–320 words)')}
+
+PROPOSAL FRAMEWORK (follow exactly):
+1. HOOK (first 2 lines): Reference something SPECIFIC from the job — a number, a problem, a tool they mentioned, a pain point. DO NOT start with "I". Do not start with "Hi". Do not be generic. Show you read this specific job.
+2. APPROACH: 2–3 concrete steps. Sound like a professional who knows what matters in this type of project.
+3. PROOF: ONE specific relevant result. Similar experience, not just general claims.
+4. WHAT YOU NEED: Exact ask for files/access/info. This signals organization and readiness.
+5. NEXT STEP: Confident closing — a soft question that invites a reply. Not "I would love to work with you."
+
+QUALITY SCORES: Rate hook_strength, process_clarity, proof_relevance, cta_confidence each 1–10.
+
+Return ONLY:
+{"hook":"first 2 lines, under 60 words","proposal":"full proposal","checks":{"hook_strength":0,"process_clarity":0,"proof_relevance":0,"cta_confidence":0},"strength":"one sentence on what's strongest","watch":"one thing to improve"}`,1000,
+`You are a senior Upwork proposal coach. You know that proposals starting with "I" get ignored. Process beats experience claims. Specificity beats enthusiasm. Always respond ONLY with valid JSON. No markdown.`);
+
+  const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+  set('uw-hook-o',d.hook||'');
+  set('uw-prop-o',d.proposal||'');
+  if(d.checks){
+    const c=d.checks;
+    let html=[
+      {l:'Hook',s:c.hook_strength,cls:'b-o'},
+      {l:'Process',s:c.process_clarity,cls:'b-b'},
+      {l:'Proof',s:c.proof_relevance,cls:'b-g'},
+      {l:'CTA',s:c.cta_confidence,cls:'b-o'}
+    ].map(x=>`<span class="check-badge ${x.cls}">${x.l} ${x.s}/10</span>`).join('');
+    if(d.strength) html+=`<div style="margin-top:10px;font-size:12.5px;color:var(--green)">✓ ${d.strength}</div>`;
+    if(d.watch) html+=`<div style="margin-top:5px;font-size:12.5px;color:#F59E0B">⚠ ${d.watch}</div>`;
+    setH('uw-check-o',html);
+  }
+}
+
+// ============================================================
+// PRICING
+// ============================================================
+async function genPC() {
+  const svc=v('pc-service'); if(!svc) throw new Error('Enter your service first.');
+  calcLive();
+  const h=parseFloat(gp('pc-rate','25')), mult=parseFloat(gp('pc-mult','1.8'));
+  const hb=parseFloat(v('pc-hb')||0),hs=parseFloat(v('pc-hs')||0),hp=parseFloat(v('pc-hp')||0);
+  const price=hr=>hr?Math.ceil(h*hr*mult/5)*5:null;
+  const pb=price(hb),ps=price(hs),pp=price(hp);
+  const txt=await callAI(`Write pricing package names and strategy for a freelance service.
+Service: ${svc}
+Market: ${gp('pc-mkt','mid-market')}
+Prices: Basic $${pb||'TBD'}, Standard $${ps||'TBD'}, Premium $${pp||'TBD'}
+Tier contents: ${v('pc-includes')||'infer standard inclusions for this service type'}
+
+Rules:
+- Package names: creative, outcome-focused. NOT Starter/Basic/Pro/Enterprise. Think transformation — e.g. "Quick Win / Growth Engine / Full System". Each name 2–3 words.
+- Tagline: 1 sentence per tier, buyer-benefit focused
+- Best_for: who buys this tier (1 line)
+- Strategy: 3 sentences on anchoring psychology for this service — how to make buyers choose the middle tier
+
+Return ONLY:
+{"tiers":[{"name":"...","tagline":"...","best_for":"..."},{"name":"...","tagline":"...","best_for":"..."},{"name":"...","tagline":"...","best_for":"..."}],"strategy":"..."}`,700);
+  const d=JSON.parse(txt.replace(/\`\`\`json|\`\`\`/g,'').trim());
+  if(d.tiers){
+    setH('pc-names-o',`<div class="ptier-grid">${d.tiers.map((t,i)=>`<div class="ptier ${i===1?'star':''}"><div class="tier-name">${t.name}</div><div class="tier-detail">${t.tagline}</div><div class="tier-detail" style="color:var(--t3);margin-top:3px">For: ${t.best_for}</div></div>`).join('')}</div>`);
+  }
+  if(d.strategy) setH('pc-strat-o',`<div style="font-size:13px;color:var(--t2);line-height:1.65;padding:10px;background:var(--asoft);border:1px solid var(--adim);border-radius:8px">${d.strategy}</div>`);
+}
+
+// Init default picks
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.opt.sel').forEach(el=>{if(el.dataset.g&&el.dataset.v)PICKS[el.dataset.g]=el.dataset.v;});
+  titleMeter();
+});
+</script>
+</body>
+</html>
