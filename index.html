@@ -640,6 +640,7 @@ const PICKS = {};
 const TAGS = [];
 const SEL_KW = [];
 const API = 'https://api.anthropic.com/v1/messages';
+const API_KEY = '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';
 
 // ============================================================
 // NAV
@@ -833,7 +834,7 @@ function renderPkgs(){
 // ============================================================
 async function callAI(prompt, maxTok=1000, sys) {
   const s=sys||'You are a world-class freelance strategist for Fiverr and Upwork. You write sharp, specific, high-converting copy based on real platform data. Never use "passionate", "dedicated", "hardworking", "guru", "ninja", "rockstar". Never start a sentence with "I am highly". Respond ONLY with valid JSON. No markdown, no backticks, no preamble.';
-  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTok,system:s,messages:[{role:'user',content:prompt}]})});
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTok,system:s,messages:[{role:'user',content:prompt}]})});
   const d=await r.json();
   if(!r.ok)throw new Error(d.error?.message||'API error');
   return d.content?.[0]?.text||'{}';
